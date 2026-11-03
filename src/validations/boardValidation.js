@@ -27,14 +27,13 @@ const createNew = async (req, res, next) => {
 
   try {
     await correctConditionSchema.validateAsync(req.body, { abortEarly: false })
-    // next()
-    res.status(StatusCodes.CREATED).json({ message: 'POST from Validation: API create a new board' })
+    // Nếu dữ liệu hợp lệ, tiếp tục xử lý request sang controller
+    next()
   } catch (error) {
     res.status(StatusCodes.UNPROCESSABLE_ENTITY).json({
       errors: new Error(error).message
     })
   }
-
 }
 
 export const boardValidation = {
