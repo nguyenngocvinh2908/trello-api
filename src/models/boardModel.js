@@ -30,9 +30,7 @@ const createNew = async (data) => {
   try {
     const validData = await validateBeforeCreate(data)
     return await GET_DB().collection(BOARD_COLLECTION_NAME).insertOne(validData)
-  } catch (error) {
-    throw new Error(error)
-  }
+  } catch (error) { throw new Error(error) }
 }
 
 // Function findOneById
@@ -40,14 +38,21 @@ const findOneById = async (id) => {
   try {
     const result = await GET_DB().collection(BOARD_COLLECTION_NAME).findOne({ _id: new ObjectId(id) })
     return result
-  } catch (error) {
-    throw new Error(error)
-  }
+  } catch (error) { throw new Error(error) }
+}
+
+// Function findOneById
+const getDetails = async (boardId) => {
+  try {
+    const result = await GET_DB().collection(BOARD_COLLECTION_NAME).findOne({ _id: new ObjectId(boardId) })
+    return result
+  } catch (error) { throw new Error(error) }
 }
 
 export const boardModel = {
   BOARD_COLLECTION_NAME,
   BOARD_COLLECTION_SCHEMA,
   createNew,
-  findOneById
+  findOneById,
+  getDetails
 }
