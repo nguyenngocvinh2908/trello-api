@@ -1,5 +1,5 @@
 import Joi from 'joi'
-import { ObjectId } from 'mongodb'
+import { ObjectId, ReturnDocument } from 'mongodb'
 import { OBJECT_ID_RULE, OBJECT_ID_RULE_MESSAGE } from '~/utils/validators'
 import { GET_DB } from '~/config/mongodb'
 import { BOARD_TYPES } from '~/utils/constants'
@@ -70,10 +70,22 @@ const getDetails = async (boardId) => {
   } catch (error) { throw new Error(error) }
 }
 
+// Nhiệm vụ của function này là push một giá trị id của column mới tạo vào cuối mảng columnOrderIds
+const pushColumnOrderIds = async (column) => {
+  try {
+    await GET_DB().collection(BOARD_COLLECTION_NAME).findOneAndUpdate(
+      { _id: new ObjectId(column.boardId) },
+      { $push: { columnOrderIds: new ObjectId(column._id) } },
+      { ReturnDocument: 'after' } // Trả ngay bản ghi đc update mới luôn
+    )
+  } catch (error) { throw new Error(error)}
+}
+
 export const boardModel = {
   BOARD_COLLECTION_NAME,
   BOARD_COLLECTION_SCHEMA,
   createNew,
   findOneById,
-  getDetails
+  getDetails,
+  pushColumnOrderIds
 }
