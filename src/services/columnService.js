@@ -1,5 +1,6 @@
 import { columnModel } from '~/models/columnModel'
 import { boardModel } from '~/models/boardModel'
+const INVALID_UPDATE_FIELDS = ['_id', 'createdAt']
 
 const createNew = async (reqBody) => {
   try {
@@ -25,6 +26,25 @@ const createNew = async (reqBody) => {
   }
 }
 
+const update = async (columnId, reqBody) => {
+  try {
+    const updateData = {
+      ...reqBody,
+      updatedAt: Date.now()
+    }
+    // Xóa những trường o cho phép update
+    Object.keys(updateData).forEach(fieldName => {
+      if (INVALID_UPDATE_FIELDS.includes(fieldName)) {
+        delete updateData[fieldName]
+      }
+    })
+    await columnModel.update(columnId, updateData)
+  } catch (error) {
+    throw new Error(error)
+  }
+}
+
 export const columnService = {
-  createNew
+  createNew,
+  update
 }

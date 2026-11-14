@@ -55,10 +55,21 @@ const pushCardOrderIds = async (card) => {
   } catch (error) { throw new Error(error)}
 }
 
+const update = async (columnId, updateData) => {
+  try {
+    return await GET_DB().collection(COLUMN_COLLECTION_NAME).findOneAndUpdate(
+      { _id: new ObjectId(columnId) },
+      { $set: updateData },
+      { ReturnDocument: 'after' } // Trả ngay bản ghi đc update mới luôn
+    )
+  } catch (error) { throw new Error(error)}
+}
+
 export const columnModel = {
   COLUMN_COLLECTION_NAME,
   COLUMN_COLLECTION_SCHEMA,
   createNew,
   findOneById,
-  pushCardOrderIds
+  pushCardOrderIds,
+  update
 }

@@ -7,5 +7,7 @@ const Router = express.Router()
 
 Router.route('/')
   .post(columnValidation.createNew, columnController.createNew)
+Router.route('/:id')
+  .patch(columnValidation.update, columnController.update)
 
 export const columnRoutes = Router
