@@ -11,6 +11,18 @@ const createNew = async (req, res, next) => {
   }
 }
 
+const update = async (req, res, next) => {
+  try {
+    const columnId = req.params.id
+    // Điều hướng đến service để xử lý
+    await columnService.update(columnId, req.body)
+    res.status(StatusCodes.NO_CONTENT).send()
+  } catch (error) {
+    next(error)
+  }
+}
+
 export const columnController = {
-  createNew
+  createNew,
+  update
 }
