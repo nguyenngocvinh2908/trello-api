@@ -82,6 +82,10 @@ const pushColumnOrderIds = async (column) => {
 }
 
 const update = async (boardId, updateData) => {
+  // Nếu DB quy ước lưu cardOrderIds dạng ObjectId thì convert luôn tại đây
+  if (updateData.columnOrderIds) {
+    updateData.columnOrderIds = updateData.columnOrderIds.map(_id => (new ObjectId(_id)))
+  }
   try {
     return await GET_DB().collection(BOARD_COLLECTION_NAME).findOneAndUpdate(
       { _id: new ObjectId(boardId) },

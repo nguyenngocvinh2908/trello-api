@@ -42,9 +42,25 @@ const findOneById = async (id) => {
   } catch (error) { throw new Error(error) }
 }
 
+const update = async (cardId, updateData) => {
+  // Nếu DB quy ước lưu cardOrderIds dạng ObjectId thì convert luôn tại đây
+  if (updateData.columnId) {
+    updateData.columnId = new ObjectId(updateData.columnId)
+  }
+  try {
+    return await GET_DB().collection(CARD_COLLECTION_NAME).findOneAndUpdate(
+      { _id: new ObjectId(cardId) },
+      { $set: updateData },
+      { ReturnDocument: 'after' } // Trả ngay bản ghi đc update mới luôn
+    )
+  } catch (error) { throw new Error(error)}
+}
+
+
 export const cardModel = {
   CARD_COLLECTION_NAME,
   CARD_COLLECTION_SCHEMA,
   createNew,
-  findOneById
+  findOneById,
+  update
 }
