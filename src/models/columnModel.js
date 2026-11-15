@@ -56,6 +56,10 @@ const pushCardOrderIds = async (card) => {
 }
 
 const update = async (columnId, updateData) => {
+  // Nếu DB quy ước lưu cardOrderIds dạng ObjectId thì convert luôn tại đây
+  if (updateData.cardOrderIds) {
+    updateData.cardOrderIds = updateData.cardOrderIds.map(_id => (new ObjectId(_id)))
+  }
   try {
     return await GET_DB().collection(COLUMN_COLLECTION_NAME).findOneAndUpdate(
       { _id: new ObjectId(columnId) },
