@@ -1,5 +1,6 @@
 import { columnModel } from '~/models/columnModel'
 import { boardModel } from '~/models/boardModel'
+import { cardModel } from '~/models/cardModel'
 const INVALID_UPDATE_FIELDS = ['_id', 'boardId', 'createdAt']
 
 const createNew = async (reqBody) => {
@@ -44,7 +45,24 @@ const update = async (columnId, reqBody) => {
   }
 }
 
+const deleteItem = async (columnId) => {
+  try {
+    // Xử lý lấy bản ghi của column đó
+    const targetColumn = await columnModel.findOneById(columnId)
+    // Xóa Column
+    await columnModel.deleteOneById(columnId)
+    // Xóa Card Trong Column Đó
+    await cardModel.deleteManyByColumnId(columnId)
+    // Xóa Id của column trong columnOrderIds trong board
+    await boardModel.pullColumnOrderIds(targetColumn)
+    return { deletedResult: 'Column and its Cards deleted successfully!' }
+  } catch (error) {
+    throw new Error(error)
+  }
+}
+
 export const columnService = {
   createNew,
-  update
+  update,
+  deleteItem
 }
