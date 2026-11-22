@@ -6,6 +6,8 @@ import { v4 as uuidv4 } from 'uuid'
 import { pickUser } from '~/utils/formatters'
 import { WEBSITE_DOMAIN } from '~/utils/constants'
 import { BrevoProvider } from '~/providers/BrevoProvider'
+import { env } from '~/config/environment'
+import { JwtProvider } from '~/providers/JWTProvider'
 
 // Chỉ định những trường không cho phép cập nhật ở tầng Service
 const INVALID_UPDATE_FIELDS = ['_id', 'email', 'username', 'createdAt']
@@ -72,8 +74,48 @@ const verifyAccount = async (reqBody) => {
       verifyToken: null
     }
 
-    // 3. Thực hiện hành động update trong tầng model
+    // 4. Thực hiện hành động update trong tầng model
     await userModel.update(existUser._id, updateData)
+  } catch (error) {
+    throw error
+  }
+}
+
+const login = async (reqBody) => {
+  try {
+    // 1. Tìm user trong Database theo email
+    const existUser = await userModel.findOneByEmail(reqBody.email)
+
+    // 2. Kiểm tra các điều kiện hợp lệ trước khi kích hoạt tài khoản
+    if (!existUser) {
+      throw new ApiError(StatusCodes.NOT_FOUND, 'Account not found!')
+    }
+    if (!existUser.isActive) {
+      throw new ApiError(StatusCodes.NOT_ACCEPTABLE, 'Your account is not active!')
+    }
+    if (!bcryptjs.compareSync(reqBody.password, existUser.password)) {
+      throw new ApiError(StatusCodes.NOT_ACCEPTABLE, 'Your Email & Password is not correct!')
+    }
+
+    /** Nếu mọi thứ ok thì bắt đầu tạo Tokens đăng nhập để trả về cho fe */
+    // Tạo thông tin sẽ đính kèm trong jwt bao gồm _id và email cho user
+    const userInfo = { _id: existUser._id, email: existUser.email }
+
+    // Tạo ra 2 loại token, accessToken và refreshToken để trả về cho fontend
+    const accessToken = await JwtProvider.generateToken(
+      userInfo,
+      env.ACCESS_TOKEN_SECRET_SIGNATURE,
+      env.ACCESS_TOKEN_LIFE
+    )
+
+    const refreshToken = await JwtProvider.generateToken(
+      userInfo,
+      env.REFRESH_TOKEN_SECRET_SIGNATURE,
+      env.REFRESH_TOKEN_LIFE
+    )
+
+    // 3. Trả về những thông tin cho người dùng
+    return { accessToken, refreshToken, ...pickUser(existUser) }
   } catch (error) {
     throw error
   }
@@ -81,5 +123,6 @@ const verifyAccount = async (reqBody) => {
 
 export const userService = {
   createNew,
-  verifyAccount
+  verifyAccount,
+  login
 }
