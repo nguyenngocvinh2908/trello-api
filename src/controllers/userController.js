@@ -21,7 +21,18 @@ const verifyAccount = async (req, res, next) => {
   }
 }
 
+const login = async (req, res, next) => {
+  try {
+    // Điều hướng đến service để xử lý
+    const result = await userService.login(req.body)
+    res.status(StatusCodes.OK).json(result)
+  } catch (error) {
+    next(error)
+  }
+}
+
 export const userController = {
   createNew,
-  verifyAccount
+  verifyAccount,
+  login
 }

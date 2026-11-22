@@ -33,7 +33,23 @@ const verifyAccount = async (req, res, next) => {
   }
 }
 
+const login = async (req, res, next) => {
+  const correctConditionSchema = Joi.object({
+    email: Joi.string().required().pattern(EMAIL_RULE).message(EMAIL_RULE_MESSAGE),
+    password: Joi.string().required().pattern(PASSWORD_RULE).message(PASSWORD_RULE_MESSAGE)
+  })
+
+  try {
+    await correctConditionSchema.validateAsync(req.body, { abortEarly: false })
+    // Nếu dữ liệu hợp lệ, tiếp tục xử lý request sang controller
+    next()
+  } catch (error) {
+    next(new ApiError(StatusCodes.UNPROCESSABLE_ENTITY, new Error(error).message ))
+  }
+}
+
 export const userValidation = {
   createNew,
-  verifyAccount
+  verifyAccount,
+  login
 }

@@ -10,4 +10,7 @@ Router.route('/register')
 Router.route('/verify')
   .patch(userValidation.verifyAccount, userController.verifyAccount)
 
+Router.route('/login')
+  .post(userValidation.login, userController.login)
+
 export const userRoutes = Router
