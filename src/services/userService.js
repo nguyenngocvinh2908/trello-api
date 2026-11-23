@@ -7,7 +7,7 @@ import { pickUser } from '~/utils/formatters'
 import { WEBSITE_DOMAIN } from '~/utils/constants'
 import { BrevoProvider } from '~/providers/BrevoProvider'
 import { env } from '~/config/environment'
-import { JwtProvider } from '~/providers/JWTProvider'
+import { JwtProvider } from '~/providers/JwtProvider'
 
 // Chỉ định những trường không cho phép cập nhật ở tầng Service
 const INVALID_UPDATE_FIELDS = ['_id', 'email', 'username', 'createdAt']
