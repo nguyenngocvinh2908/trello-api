@@ -48,8 +48,27 @@ const login = async (req, res, next) => {
   }
 }
 
+const update = async (req, res, next) => {
+  const correctConditionSchema = Joi.object({
+    displayName: Joi.string().trim().strict(),
+    current_password: Joi.string().pattern(PASSWORD_RULE).message(PASSWORD_RULE_MESSAGE),
+    new_password: Joi.string().pattern(PASSWORD_RULE).message(PASSWORD_RULE_MESSAGE)
+      .invalid(Joi.ref('current_password'))
+      .messages({ 'any.invalid': 'New password must be different from current password!' })
+  }).and('current_password', 'new_password')
+
+  try {
+    await correctConditionSchema.validateAsync(req.body, { abortEarly: false, allowUnknown: true })
+    // Nếu dữ liệu hợp lệ, tiếp tục xử lý request sang controller
+    next()
+  } catch (error) {
+    next(new ApiError(StatusCodes.UNPROCESSABLE_ENTITY, new Error(error).message ))
+  }
+}
+
 export const userValidation = {
   createNew,
   verifyAccount,
-  login
+  login,
+  update
 }
