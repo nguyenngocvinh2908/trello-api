@@ -8,6 +8,7 @@ import { WEBSITE_DOMAIN } from '~/utils/constants'
 import { BrevoProvider } from '~/providers/BrevoProvider'
 import { env } from '~/config/environment'
 import { JwtProvider } from '~/providers/JwtProvider'
+import { CloudinaryProvider } from '~/providers/CloudinaryProvider'
 
 // Chỉ định những trường không cho phép cập nhật ở tầng Service
 const INVALID_UPDATE_FIELDS = ['_id', 'email', 'username', 'createdAt']
@@ -147,7 +148,7 @@ const refreshToken = async (clientRefreshToken) => {
   }
 }
 
-const update = async (userId, reqBody) => {
+const update = async (userId, reqBody, userAvatarFile) => {
   try {
     // 1. Kiểm tra user có tồn tại và đã kích hoạt tài khoản chưa
     const existUser = await userModel.findOneById(userId)
@@ -166,6 +167,14 @@ const update = async (userId, reqBody) => {
       // Hash mật khẩu mới và cập nhật vào DB
       updatedUser = await userModel.update(existUser._id, {
         password: bcryptjs.hashSync(reqBody.new_password, 8)
+      })
+    } else if (userAvatarFile) {
+      // Trường hợp 2: Upload file Avatar lên Cloudinary (AccountTab)
+      const uploadResult = await CloudinaryProvider.streamUpload(userAvatarFile.buffer, 'users')
+
+      // Lưu đường dẫn ảnh an toàn (secure_url) từ Cloudinary trả về vào DB
+      updatedUser = await userModel.update(existUser._id, {
+        avatar: uploadResult.secure_url
       })
     } else {
       // Trường hợp 3: Cập nhật các thông tin chung khác (ví dụ: displayName)

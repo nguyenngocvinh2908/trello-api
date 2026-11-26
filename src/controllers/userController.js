@@ -86,7 +86,10 @@ const update = async (req, res, next) => {
     // Lấy _id của user hiện tại từ token đã được authMiddleware giải mã
     const userId = req.jwtDecoded._id
 
-    const updatedUser = await userService.update(userId, req.body)
+    // File ảnh avatar do Multer xử lý và gắn vào req.file (nếu có upload ảnh)
+    const userAvatarFile = req.file
+
+    const updatedUser = await userService.update(userId, req.body, userAvatarFile)
     res.status(StatusCodes.OK).json(updatedUser)
   } catch (error) {
     next(error)
